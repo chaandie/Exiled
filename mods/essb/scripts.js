@@ -559,7 +559,27 @@ exports.BattleScripts = {
 				},
 				nature: "Jolly",
 			},
-		};
+		
+			},
+	            },
+		    "The D": {
+		
+			    species: "Deoxys-Defense",
+		            ability: "Defense",
+		            item: "Leftovers",
+		            gender: "M",
+		            moves: ['roar', 'storedpower', 'recover'],
+		            baseSignaturemove: "cripplinghazards",
+		            signatureMove: "Crippling Hazards",
+		            evs: {
+			              hp: 252,
+			              def: 252,
+			              spd: 4,
+		           },
+		           nature: "Bold",
+		
+		
+		 };
 		// Generate the team randomly.
 		let pool = Tools.shuffle(Object.keys(sets));
 		let levels = {'~':99, '☥':98, '&':97, '*': 96, '@':96, '%':95, '+':95, ' ': 94};
@@ -641,3 +661,5 @@ exports.BattleScripts = {
 		return true;
 	},
 };
+
+			
