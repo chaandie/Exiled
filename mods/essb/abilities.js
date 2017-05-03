@@ -1003,21 +1003,16 @@ exports.BattleAbilities = {
 			}
 		},
 	},
-};
-
-        },
-	"defense"
+	"defense": {
 		id: "defense",
 		name: "Defense",
 		desc: "Unaware + Magic Bounce. At the end of the turn, the user's Special Defense and Defenses raise by 1 stage.",
-		onResidualOrder: 26
-		onResidualSubOrder: 1
+		onResidualOrder: 26,
+		onResidualSubOrder: 1,
 		onResidual: function (pokemon) {
 			if (pokemon.activeTurns) {
 				this.boost({def:1, spd: 1}, source);
 			},
 		},
-},
+	},
 };
-
-
