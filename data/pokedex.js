@@ -14451,7 +14451,7 @@ exports.BattlePokedex = {
 		color: "White",
 		eggGroups: ["Undiscovered"],
 	},
-	hydreigonmega
+	hydreigonmega: {
 		num: 635,
 		species: "Hydreigon-Mega",
 		baseSpecies: "Hydreigon",
@@ -14465,7 +14465,7 @@ exports.BattlePokedex = {
 		color: "Blue",
 		eggGroups: ["Dragon"],
 	},
-	kingdramega
+	kingdramega: {
 		num: 230,
 		species: "Kingdra-Mega",
 		baseSpecies: "Kingdra",
@@ -14479,30 +14479,31 @@ exports.BattlePokedex = {
 		color: "Blue",
 		eggGroups: ["Water 1", "Dragon"],
 	},
-	dragalgemega
+	dragalgemega: {
 		num: 691,
-		species: "Dragalge-Mega,
+		species: "Dragalge-Mega",
 		baseSpecies: "Dragalge",
 		forme: "Mega",
 		formeLetter: "M",
-		types ["Poison", "Dragon"],
+		types: ["Poison", "Dragon"],
 		baseStats: {hp: 65, atk: 75, def: 110, spa: 130, spd: 130, spe: 94},
 		abilities: {0: "Adaptability"},
 		heightm: 1.8,
 		color: "Brown",
 		eggGroups: ["Water 1", "Dragon"],
 	},
-	breloommega
+	breloommega: {
     		num: 286,
-   		 species: "Breloom-Mega",
+   		species: "Breloom-Mega",
     		baseSpecies: "Breloom",
-   		 forme: "Mega",
+   		forme: "Mega",
     		formeLetter: "M",
-   		 types: ["Grass", "Fighting"],
-   		 baseStats: {hp: 60, atk: 165, def: 90, spa: 60, spd: 80, spe: 85},
-   		 abilities: {0: "Technician"}
-   		 heightm: 1.2,
-   		 weightkg: 42.8,
-   		 color: "Green",
+   		types: ["Grass", "Fighting"],
+   		baseStats: {hp: 60, atk: 165, def: 90, spa: 60, spd: 80, spe: 85},
+   		abilities: {0: "Technician"},
+   		heightm: 1.2,
+   		weightkg: 42.8,
+   		color: "Green",
     		eggGroups: ["Grass"],
 	},
+};
