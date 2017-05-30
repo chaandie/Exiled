@@ -7978,7 +7978,7 @@ exports.BattlePokedex = {
 		heightm: 3.7,
 		weightkg: 658,
 		color: "Brown",
-		eggGroups: ["Field"],	
+		eggGroups: ["Field"],
 	},
 	porygonz: {
 		num: 474,
