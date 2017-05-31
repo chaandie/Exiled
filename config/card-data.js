@@ -1,5 +1,3 @@
-
-
 'use strict';
 
 module.exports = {
@@ -3720,4 +3718,11 @@ module.exports = {
 'kingdracrystalaqp': {title: 'kingdracrystalaqp', name: 'Kingdra', card: 'http://pkmncards.com/wp-content/uploads/kingdra-aquapolis-aq-148.jpg', rarity: 'Mythic', collection: ['Colorless', 'BL2-Pack', 'Crystal Type', 'GSC-Aquapolis', 'Gen2'], points: 20},
 'lugiacrystalaqp': {title: 'lugiacrystalaqp', name: 'Lugia', card: 'http://pkmncards.com/wp-content/uploads/lugia-aquapolis-aq-149.jpg', rarity: 'Mythic', collection: ['Colorless', 'Uber-Pack', 'Legendary', 'Crystal Type', 'GSC-Aquapolis', 'Gen2'], points: 20},
 'nidokingcrystalaqp': {title: 'nidokingcrystalaqp', name: 'Nidoking', card: 'http://pkmncards.com/wp-content/uploads/nidoking-aquapolis-aq-150.jpg', rarity: 'Mythic', collection: ['Colorless', 'UU-Pack', 'Crystal Type', 'GSC-Aquapolis', 'Gen1'], points: 20},
+'rivalrytrainer': {title: 'rivalry', name: 'Rivalry', card: 'http://i.imgur.com/uxDv4YB.png', rarity: 'Epic', collection: ['Trainer', 'Gen1'], points: 10},
+'lunalagx': {title: 'lunalagx', name: 'Lunala GX', card: 'http://940ee6dce6677fa01d25-0f55c9129972ac85d6b1f4e703468e6b.r99.cf2.rackcdn.com/products/pictures/1110018.jpg', rarity: 'Legendary', collection: ['Psychic', 'Legendary', 'Uber-Pack'], points: 15},
+'lunalagxfull': {title: 'lunalagxfull', name: 'Lunala GX (Full)', card: 'http://assets.pokemon.com/assets/cms2/img/cards/web/SM1/SM1_EN_141.png', rarity: 'Mythic', collection: ['Psychic', 'Mythic', 'Uber-Pack'], points: 20},
+'onixexiled': {title: 'onixexiled', name: 'Onix (Exiled)', card: 'http://i.imgur.com/uqGehCs.png', rarity: 'Uncommon', collection: ['Exiled'], points: 5},
+'miltankexiled': {title: 'miltankexiled', name: 'Miltank (Exiled)', card: 'http://i.imgur.com/h4mEG5j.png', rarity: 'Uncommon', collection: ['Exiled'], points: 4},
+'runawayexiled': {title: 'runawayexiled', name: 'Run Away Trainer (Exiled)', card: 'http://i.imgur.com/q6hk0Yf.png', rarity: 'Common', collection: ['Exiled'], points: 3},
+'marshadowgx': {title: 'marshadowgx', name: 'Marshadow GX (Exiled)', card: 'http://i.imgur.com/TxeWmQa.jpg', rarity: 'Legendary', collection: ['Exiled'], points: 18},
 };

@@ -119,7 +119,7 @@ exports.BattleAbilities = {
 		},
 		id: "analytic",
 		name: "Analytic",
-		rating: 2,
+		rating: 2.5,
 		num: 148,
 	},
 	"angerpoint": {
@@ -506,7 +506,7 @@ exports.BattleAbilities = {
 	},
 	"corrosion": {
 		shortDesc: "This Pokemon can poison or badly poison other Pokemon regardless of their typing.",
-		// Implemented in battle-engine.js:BattlePokemon#setStatus
+		// Implemented in sim/pokemon.js:Pokemon#setStatus
 		id: "corrosion",
 		name: "Corrosion",
 		rating: 2.5,
@@ -1226,7 +1226,7 @@ exports.BattleAbilities = {
 		shortDesc: "When this Pokemon has 1/2 or less of its maximum HP, it uses certain Berries early.",
 		id: "gluttony",
 		name: "Gluttony",
-		rating: 1,
+		rating: 1.5,
 		num: 82,
 	},
 	"gooey": {
@@ -1364,6 +1364,17 @@ exports.BattleAbilities = {
 		rating: 5,
 		num: 37,
 	},
+	"pureheart": {
+		shortDesc: "This Pokemon's Special Attack is doubled. Only for Magearna-Mega.",
+		onModifyAtkPriority: 5,
+		onModifyAtk: function (spa) {
+			return this.chainModify(2);
+		},
+		id: "pureheart",
+		name: "Pure Heart",
+		rating: 5,
+		num: -37,
+	},
 	"hustle": {
 		desc: "This Pokemon's Attack is multiplied by 1.5 and the accuracy of its physical attacks is multiplied by 0.8.",
 		shortDesc: "This Pokemon's Attack is 1.5x and accuracy of its physical attacks is 0.8x.",
@@ -1450,8 +1461,11 @@ exports.BattleAbilities = {
 			if (pokemon === pokemon.side.pokemon[i]) return;
 			pokemon.illusion = pokemon.side.pokemon[i];
 		},
-		// illusion clearing for damage is hardcoded in the damage
-		// function because mold breaker inhibits the damage event
+		onAfterDamage: function (damage, target, source, effect) {
+			if (target.illusion && effect && effect.effectType === 'Move' && effect.id !== 'confused') {
+				this.singleEvent('End', this.getAbility('Illusion'), target.abilityData, target, source, effect);
+			}
+		},
 		onEnd: function (pokemon) {
 			if (pokemon.illusion) {
 				this.debug('illusion cleared');
@@ -1464,6 +1478,7 @@ exports.BattleAbilities = {
 		onFaint: function (pokemon) {
 			pokemon.illusion = null;
 		},
+		isUnbreakable: true,
 		id: "illusion",
 		name: "Illusion",
 		rating: 4,
@@ -1641,7 +1656,7 @@ exports.BattleAbilities = {
 	"klutz": {
 		desc: "This Pokemon's held item has no effect. This Pokemon cannot use Fling successfully. Macho Brace, Power Anklet, Power Band, Power Belt, Power Bracer, Power Lens, and Power Weight still have their effects.",
 		shortDesc: "This Pokemon's held item has no effect, except Macho Brace. Fling cannot be used.",
-		// Item suppression implemented in BattlePokemon.ignoringItem() within battle-engine.js
+		// Item suppression implemented in Pokemon.ignoringItem() within sim/pokemon.js
 		id: "klutz",
 		name: "Klutz",
 		rating: -1,
@@ -1670,7 +1685,7 @@ exports.BattleAbilities = {
 	"levitate": {
 		desc: "This Pokemon is immune to Ground. Gravity, Ingrain, Smack Down, Thousand Arrows, and Iron Ball nullify the immunity.",
 		shortDesc: "This Pokemon is immune to Ground; Gravity/Ingrain/Smack Down/Iron Ball nullify it.",
-		// airborneness implemented in battle-engine.js:BattlePokemon#isGrounded
+		// airborneness implemented in sim/pokemon.js:Pokemon#isGrounded
 		id: "levitate",
 		name: "Levitate",
 		rating: 3.5,
@@ -2074,7 +2089,7 @@ exports.BattleAbilities = {
 					// this.add('-message', "" + curPoke + " skipped: Natural Cure already known");
 					continue;
 				}
-				let template = Tools.getTemplate(curPoke.species);
+				let template = Dex.getTemplate(curPoke.species);
 				// pokemon can't get Natural Cure
 				if (Object.values(template.abilities).indexOf('Natural Cure') < 0) {
 					// this.add('-message', "" + curPoke + " skipped: no Natural Cure");
@@ -2683,7 +2698,7 @@ exports.BattleAbilities = {
 			duration: 1,
 			onBasePowerPriority: 8,
 			onBasePower: function (basePower, pokemon, target, move) {
-				return this.chainModify([0x14CD, 0x1000]);
+				return this.chainModify([0x1333, 0x1000]);
 			},
 		},
 		id: "refrigerate",
@@ -3208,7 +3223,7 @@ exports.BattleAbilities = {
 	"soundproof": {
 		shortDesc: "This Pokemon is immune to sound-based moves, including Heal Bell.",
 		onTryHit: function (target, source, move) {
-			if (target !== source && move.flags['sound']) {
+			if (move.flags['sound']) {
 				this.add('-immune', target, '[msg]', '[from] ability: Soundproof');
 				return null;
 			}
@@ -3543,7 +3558,7 @@ exports.BattleAbilities = {
 		},
 		id: "synchronize",
 		name: "Synchronize",
-		rating: 2.5,
+		rating: 2,
 		num: 28,
 	},
 	"tangledfeet": {
@@ -3703,10 +3718,7 @@ exports.BattleAbilities = {
 		shortDesc: "On switch-in, or when it can, this Pokemon copies a random adjacent foe's Ability.",
 		onUpdate: function (pokemon) {
 			if (!pokemon.isStarted) return;
-			let possibleTargets = [];
-			for (let i = 0; i < pokemon.side.foe.active.length; i++) {
-				if (pokemon.side.foe.active[i] && !pokemon.side.foe.active[i].fainted) possibleTargets.push(pokemon.side.foe.active[i]);
-			}
+			let possibleTargets = pokemon.side.foe.active.filter(foeActive => foeActive && this.isAdjacent(pokemon, foeActive));
 			while (possibleTargets.length) {
 				let rand = 0;
 				if (possibleTargets.length > 1) rand = this.random(possibleTargets.length);
@@ -3825,6 +3837,25 @@ exports.BattleAbilities = {
 		name: "Unnerve",
 		rating: 1.5,
 		num: 127,
+	},
+	"venomousfangs": {
+		shortDesc: "This Pokemon's bite moves have a 50% chance of badly poisoning.",
+		// upokecenter says this is implemented as an added secondary effect
+		onModifyMove: function (move) {
+			if (!move || !move.flags['bite']) return;
+			if (!move.secondaries) {
+				move.secondaries = [];
+			}
+			move.secondaries.push({
+				chance: 50,
+				status: 'tox',
+				ability: this.getAbility('venomousfangs'),
+			});
+		},
+		id: "venomousfangs",
+		name: "Venomous Fangs",
+		rating: 2,
+		num: 10000,
 	},
 	"victorystar": {
 		shortDesc: "This Pokemon and its allies' moves have their accuracy multiplied by 1.1.",
@@ -4140,6 +4171,7 @@ exports.BattleAbilities = {
 		rating: 3.5,
 		num: -4,
 	},
+	//Exiled custom mons
 	"insectize": {
 		desc: "This Pokemon's Normal-type moves become Bug-type moves and have their power multiplied by 1.2. This effect comes after other effects that change a move's type, but before Ion Deluge and Electrify's effects.",
 		shortDesc: "This Pokemon's Normal-type moves become Bug Type and have 1.2x power.",
@@ -4211,5 +4243,109 @@ exports.BattleAbilities = {
 			this.useMove('Reflect', pokemon);
 			this.useMove('Light Screen', pokemon);
 		},
+	},
+	"deltafur": {
+		desc: "70% chance a Pokemon making contact with this Pokemon will be poisoned, paralyzed, fall asleep, freeze, or burned.",
+		shortDesc: "70% chance of poison/paralysis/sleep/burn/freeze on others making contact with this Pokemon.",
+		onAfterDamage: function (damage, target, source, move) {
+			if (move && move.flags['contact'] && !source.status && source.runStatusImmunity('powder')) {
+				let r = this.random(100);
+				if (r <= 14) {
+					source.setStatus('slp', target);
+				} else if (r <= 28) {
+					source.setStatus('par', target);
+				} else if (r <= 42) {
+					source.setStatus('psn', target);
+				} else if (r <= 56) {
+					source.setStatus('frz', target);
+				} else if (r <= 70) {
+					source.setStatus('brn', target);
+				}
+			}
+		},
+		id: "deltafur",
+		name: "Delta Fur",
+		rating: 5,
+		num: -27,
+	},
+	"barricade": {
+		desc: "This Pokemon receives 1/2 damage and is immune to non-volatile status",
+		shortDesc: "This Pokemon receives 1/2 damage and is immune to non-volatile status",
+		// TODO: are either of these effects actually base power modifiers?
+		onSourceModifyDamage: function (damage, source, target, move) {
+			let mod = 1;
+			mod /= 2;
+			return this.chainModify(mod);
+		},
+		onSetStatus: function (status, target, source, effect) {
+			if (!effect || !effect.status) return false;
+			this.add('-immune', target, '[msg]', '[from] ability: Barricade');
+			return false;
+		},
+		id: "barricade",
+		name: "Barricade",
+		rating: 5,
+		num: -28,
+	},
+	"macrocosm": {
+		shortDesc: "This Pokemon's Fire-type attacks have their power multiplied by 1.5.",
+		onBasePowerPriority: 8,
+		onBasePower: function (basePower, attacker, defender, move) {
+			if (move.type === 'Fire') {
+				this.debug('Macrocosm boost');
+				return this.chainModify(1.5);
+			}
+		},
+		id: "macrocosm",
+		name: "Macrocosm",
+		rating: 3,
+		num: -200,
+	},
+	"microcosm": {
+		shortDesc: "This Pokemon's Fairy-type attacks have their power multiplied by 1.5.",
+		onBasePowerPriority: 8,
+		onBasePower: function (basePower, attacker, defender, move) {
+			if (move.type === 'Fairy') {
+				this.debug('Microcosm boost');
+				return this.chainModify(1.5);
+			}
+		},
+		id: "microcosm",
+		name: "Microcosm",
+		rating: 3,
+		num: -200,
+	},
+	"shadowrush": {
+		shortDesc: "The user's Dark-type moves have +1 priority.",
+		onModifyPriority: function (priority, pokemon, target, move) {
+			if (move && move.type === 'Dark') return priority + 1;
+		},
+		id: "shadowrush",
+		name: "Shadow Rush",
+		rating: 3,
+		num: -201,
+	},
+	"belligerent": {
+		shortDesc: "Scrappy + Tough Claws.",
+		//scrappy
+		onModifyMovePriority: -5,
+		onModifyMove: function (move) {
+			if (!move.ignoreImmunity) move.ignoreImmunity = {};
+			if (move.ignoreImmunity !== true) {
+				move.ignoreImmunity['Fighting'] = true;
+				move.ignoreImmunity['Normal'] = true;
+			}
+		},
+		//toughclaws
+		onBasePowerPriority: 8,
+		onBasePower: function (basePower, attacker, defender, move) {
+			if (move.flags['contact']) {
+				return this.chainModify([0x14CD, 0x1000]);
+			}
+		},
+		id: "belligerent",
+		name: "Belligerant",
+		rating: 3,
+		num: -202,
 	},
 };

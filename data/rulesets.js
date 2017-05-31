@@ -76,7 +76,7 @@ exports.BattleFormats = {
 			let template = this.getTemplate(set.species);
 			let problems = [];
 			let totalEV = 0;
-			let allowCAP = !!(format && format.banlistTable && format.banlistTable['allowcap']);
+			let allowCAP = !!(format && format.banlistTable && format.banlistTable['Rule:allowcap']);
 
 			if (set.species === set.name) delete set.name;
 			if (template.gen > this.gen) {
@@ -116,17 +116,20 @@ exports.BattleFormats = {
 				if (template.isNonstandard) {
 					problems.push(set.species + ' does not exist.');
 				}
-				if (ability.isNonstandard) {
-					problems.push(ability.name + ' does not exist.');
-				}
-				if (item.isNonstandard) {
-					if (item.isNonstandard === 'gen2') {
-						problems.push(item.name + ' does not exist outside of gen 2.');
-					} else {
-						problems.push(item.name + ' does not exist.');
-					}
+			}
+
+			if (!allowCAP && ability.isNonstandard) {
+				problems.push(ability.name + ' does not exist.');
+			}
+
+			if (item.isNonstandard) {
+				if (item.isNonstandard === 'gen2') {
+					problems.push(item.name + ' does not exist outside of gen 2.');
+				} else if (!allowCAP) {
+					problems.push(item.name + ' does not exist.');
 				}
 			}
+
 			for (let k in set.evs) {
 				if (typeof set.evs[k] !== 'number' || set.evs[k] < 0) {
 					set.evs[k] = 0;
@@ -228,7 +231,7 @@ exports.BattleFormats = {
 				// Autofixed forme.
 				template = this.getTemplate(set.species);
 
-				if (!format.banlistTable['ignoreillegalabilities'] && !format.noChangeAbility) {
+				if (!format.banlistTable['Rule:ignoreillegalabilities'] && !format.noChangeAbility) {
 					// Ensure that the ability is (still) legal.
 					let legalAbility = false;
 					for (let i in template.abilities) {
@@ -406,14 +409,6 @@ exports.BattleFormats = {
 			}
 		},
 	},
-	ateclause: {
-		effectType: 'ValidatorRule',
-		name: '-ate Clause',
-		banlist: ['Aerilate + Pixilate + Refrigerate > 1'],
-		onStart: function () {
-			this.add('rule', '-ate Clause: Limit one of Aerilate/Refrigerate/Pixilate');
-		},
-	},
 	ohkoclause: {
 		effectType: 'ValidatorRule',
 		name: 'OHKO Clause',
@@ -466,7 +461,7 @@ exports.BattleFormats = {
 	endlessbattleclause: {
 		effectType: 'Rule',
 		name: 'Endless Battle Clause',
-		// implemented in battle-engine.js
+		// implemented in sim/battle.js
 
 		// A Pokémon has a confinement counter, which starts at 0:
 		// +1 confinement whenever:
@@ -700,6 +695,49 @@ exports.BattleFormats = {
 			if (move && move.id === 'freezedry' && type === 'Water') return;
 			if (move && !this.getImmunity(move, type)) return 1;
 			return -typeMod;
+		},
+	},
+	sketchclause: {
+		effectType: 'ValidatorRule',
+		name: 'Sketch Clause',
+		onValidateTeam: function (team) {
+			let sketchedMoves = {};
+			for (let i = 0; i < team.length; i++) {
+				let move = team[i].sketchmonsMove;
+				if (!move) continue;
+				if (move in sketchedMoves) {
+					return ["You are limited to sketching one of each move by the Sketch Clause.", "(You have sketched " + this.getMove(move).name + " more than once)"];
+				}
+				sketchedMoves[move] = (team[i].name || team[i].species);
+			}
+		},
+	},
+	ignoreillegalabilities: {
+		effectType: 'ValidatorRule',
+		name: 'Ignore Illegal Abilities',
+		// Implemented in the 'pokemon' ruleset and in teamvalidator.js
+	},
+	allowonesketch: {
+		effectType: 'ValidatorRule',
+		name: 'Allow One Sketch',
+		// Implemented in teamvalidator.js
+	},
+	allowcap: {
+		effectType: 'ValidatorRule',
+		name: 'Allow CAP',
+		// Implemented in the 'pokemon' ruleset
+	},
+	ashdex: {
+		effectType: 'ValidatorRule',
+		name: 'Ash Dex',
+		onValidateSet: function (set, format) {
+			let ashDex = {
+				"Sceptile":1, "Pidgeotto":1, "Pikachu":1, "Bulbasaur":1, "Squirtle":1, "Charizard":1, "Goodra":1, "Noivern":1, "Snivy":1, "Charmander":1, "Charmeleon":1, "Froakie":1, "Frogadier":1, "Greninja":1, "Treecko":1, "Grovyle":1, "Talonflame":1, "Caterpie":1, "Metapod":1, "Butterfree":1, "Fletchling":1, "Fletchinder":1, "Muk":1, "Grimer":1, "Snorlax":1, "Krabby":1, "Kingler":1, "Raticate":1, "Lapras":1, "Glalie":1, "Staraptor":1, "Taurous":1, "Buizel":1, "Aipom":1, "Donphan":1, "Torkoal":1, "Torterra":1, "Turtwig":1, "Grotle":1, "Quilava":1, "Tepig":1, "Pignite":1, "Oshawott":1, "Corphish":1, "Swellow":1, "Pidove":1, "Gliscor":1, "Chimchar":1, "Monferno":1, "Infernape":1, "Primeape":1, "Pidgeot":1, "Heracross":1, "Chikorita":1, "Cyndaquil":1, "Totodile":1, "Noctowl":1, "Beedrill":1, "Bayleef":1, "Phanpy":1, "Taillow":1, "Snorunt":1, "Gligar":1, "Gible":1, "Tranquil":1, "Sewaddle":1, "Swadloon":1, "Scraggy":1, "Roggenrola":1, "Palpitoad":1, "Boldore":1, "Leavanny":1, "Krokorok":1, "Krookodile":1, "Unfezant":1, "Greninja-Ash":1, "Hawlucha":1, "Noibat":1, "Goomy":1, "Sliggoo":1, "Haunter":1, "Larvitar":1, "Rowlet":1, "Rockruff":1, "Litten":1,
+			};
+			let template = this.getTemplate(set.species || set.name);
+			if (!(template.baseSpecies in ashDex) && format.banlistTable[template.speciesid] !== false) {
+				return [template.baseSpecies + " is not one of Ash's Pokemon."];
+			}
 		},
 	},
 };

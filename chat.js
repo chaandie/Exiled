@@ -16,15 +16,90 @@
  */
 
 /*
+
 To reload chat commands:
+
 /hotpatch chat
+
 */
 
 'use strict';
 
 let Chat = module.exports;
 
+// Regex copied from the client
+const domainRegex = '[a-z0-9\\-]+(?:[.][a-z0-9\\-]+)*';
+const parenthesisRegex = '[(](?:[^\\s()<>&]|&amp;)*[)]';
+const linkRegex = new RegExp(
+	'\\b' +
+	'(?:' +
+		'(?:' +
+			// When using www. or http://, allow any-length TLD (like .museum)
+			'(?:https?://|www[.])' + domainRegex +
+			'|' + domainRegex + '[.]' +
+				// Allow a common TLD, or any 2-3 letter TLD followed by : or /
+				'(?:com?|org|net|edu|info|us|jp|[a-z]{2,3}(?=[:/]))' +
+		')' +
+		'(?:[:][0-9]+)?' +
+		'\\b' +
+		'(?:' +
+			'/' +
+			'(?:' +
+				'(?:' +
+					'[^\\s()&<>]|&amp;|&quot;' +
+					'|' + parenthesisRegex +
+				')*' +
+				// URLs usually don't end with punctuation, so don't allow
+				// punctuation symbols that probably aren't related to URL.
+				'(?:' +
+					'[^\\s`()\\[\\]{}\'".,!?;:&<>*_`^~\\\\]' +
+					'|' + parenthesisRegex +
+				')' +
+			')?' +
+		')?' +
+		'|[a-z0-9.]+\\b@' + domainRegex + '[.][a-z]{2,3}' +
+	')' +
+	'(?!.*&gt;)',
+	'ig'
+);
+const hyperlinkRegex = new RegExp(`(.+)&lt;(.+)&gt;`, 'i');
+
+const formattingResolvers = [
+	{token: "**", resolver: str => `<b>${str}</b>`},
+	{token: "__", resolver: str => `<i>${str}</i>`},
+	{token: "``", resolver: str => `<code>${str}</code>`},
+	{token: "~~", resolver: str => `<s>${str}</s>`},
+	{token: "^^", resolver: str => `<sup>${str}</sup>`},
+	{token: "\\", resolver: str => `<sub>${str}</sub>`},
+	{token: "&lt;&lt;", endToken: "&gt;&gt;", resolver: str => str.replace(/[a-z0-9-]/g, '').length ? false : `&laquo;<a href="${str}" target="_blank">${str}</a>&raquo;`},
+	{token: "[[", endToken: "]]", resolver: str => {
+		let hl = hyperlinkRegex.exec(str);
+		if (hl) return `<a href="${hl[2].trim().replace(/^([a-z]*[^a-z:])/g, 'http://$1')}">${hl[1].trim()}</a>`;
+
+		let query = str;
+		let querystr = str;
+		let split = str.split(':');
+		if (split.length > 1) {
+			let opt = toId(split[0]);
+			query = split.slice(1).join(':').trim();
+
+			switch (opt) {
+			case 'wiki':
+			case 'wikipedia':
+				return `<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=${encodeURIComponent(query)}" target="_blank">${querystr}</a>`;
+			case 'yt':
+			case 'youtube':
+				query += " site:youtube.com";
+				querystr = `yt: ${query}`;
+			}
+		}
+
+		return `<a href="http://www.google.com/search?ie=UTF-8&btnI&q=${encodeURIComponent(query)}" target="_blank">${querystr}</a>`;
+	}},
+];
+
 const MAX_MESSAGE_LENGTH = 300;
+
 const BROADCAST_COOLDOWN = 20 * 1000;
 const MESSAGE_COOLDOWN = 5 * 60 * 1000;
 
@@ -161,6 +236,12 @@ class CommandContext {
 			message = this.canTalk(message);
 		}
 
+		if (this.room) {
+			if (parseEmoticons(message, this.room, this.user)) return null;
+		} else {
+			message = parseEmoticons(message, this.room, this.user, true) || message;
+		}
+
 		// Output the message
 
 		if (message && message !== true && typeof message.then !== 'function') {
@@ -175,7 +256,6 @@ class CommandContext {
 				this.user.lastPM = this.pmTarget.userid;
 			} else {
 				if (Users.ShadowBan.checkBanned(this.user)) {
-					if (parseEmoticons(message, this.room, this.user)) return;
 					Users.ShadowBan.addMessage(this.user, `To ${this.room.id}`, message);
 					this.user.sendTo(this.room.id, `|c|${this.user.getIdentity(this.room.id)}|${message}`);
 				} else {
@@ -183,7 +263,6 @@ class CommandContext {
 						Users.ShadowBan.addMessage(this.user, "To " + this.room.id, message);
 						this.user.sendTo(this.room, (this.room.type === 'chat' ? '|c:|' + (~~(Date.now() / 1000)) + '|' : '|c|') + this.user.getIdentity(this.room.id) + '|' + message);
 					} else {
-						if (parseEmoticons(message, this.room, this.user)) return;
 						this.room.add(`|c|${this.user.getIdentity(this.room.id)}|${message}`).update();
 					}
 				}
@@ -216,8 +295,7 @@ class CommandContext {
 		if (cmdToken === message.charAt(1)) return;
 		if (cmdToken === BROADCAST_TOKEN && /[^A-Za-z0-9]/.test(message.charAt(1))) return;
 
-		let cmd = '',
-			target = '';
+		let cmd = '', target = '';
 
 		let spaceIndex = message.indexOf(' ');
 		if (spaceIndex > 0) {
@@ -310,7 +388,7 @@ class CommandContext {
 				message: this.message,
 			});
 			Rooms.global.reportCrash(err);
-			this.sendReply(`|html|<div class="broadcast-red"><b>Pokemon Showdown crashed!</b><br />Don't worry, we\'re working on fixing it.</div>`);
+			this.sendReply(`|html|<div class="broadcast-red"><b>Exiled crashed!</b><br />Don't worry, we\'re working on fixing it.</div>`);
 		}
 		if (result === undefined) result = false;
 
@@ -320,6 +398,7 @@ class CommandContext {
 	checkFormat(room, user, message) {
 		if (!room) return true;
 		if (!room.filterStretching && !room.filterCaps) return true;
+		if (user.can('bypassall')) return true;
 
 		if (room.filterStretching && user.name.match(/(.+?)\1{5,}/i)) {
 			return this.errorReply(`Your username contains too much stretching, which this room doesn't allow.`);
@@ -330,10 +409,10 @@ class CommandContext {
 		// Removes extra spaces and null characters
 		message = message.trim().replace(/[ \u0000\u200B-\u200F]+/g, ' ');
 
-		if (room.filterStretching && message.match(/(.+?)\1{7,}/i) && !user.can('mute', null, room)) {
+		if (room.filterStretching && message.match(/(.+?)\1{7,}/i)) {
 			return this.errorReply(`Your message contains too much stretching, which this room doesn't allow.`);
 		}
-		if (room.filterCaps && message.match(/[A-Z\s]{18,}/) && !user.can('mute', null, room)) {
+		if (room.filterCaps && message.match(/[A-Z\s]{18,}/)) {
 			return this.errorReply(`Your message contains too many capital letters, which this room doesn't allow.`);
 		}
 
@@ -361,6 +440,10 @@ class CommandContext {
 			return false;
 		}
 		return true;
+	}
+	checkGameFilter() {
+		if (!this.room || !this.room.game || !this.room.game.onChatMessage) return false;
+		return this.room.game.onChatMessage(this.message);
 	}
 	pmTransform(message) {
 		let prefix = `|pm|${this.user.getIdentity()}|${this.pmTarget.getIdentity()}|`;
@@ -489,7 +572,7 @@ class CommandContext {
 			let broadcastMessage = message.toLowerCase().replace(/[^a-z0-9\s!,]/g, '');
 
 			if (this.room && this.room.lastBroadcast === this.broadcastMessage &&
-				this.room.lastBroadcastTime >= Date.now() - BROADCAST_COOLDOWN) {
+					this.room.lastBroadcastTime >= Date.now() - BROADCAST_COOLDOWN) {
 				this.errorReply("You can't broadcast this because it was just broadcasted.");
 				return false;
 			}
@@ -620,7 +703,7 @@ class CommandContext {
 				return false;
 			}
 
-			if (!this.checkBanwords(room, user.name)) {
+			if (!this.checkBanwords(room, user.name) && !user.can('bypassall')) {
 				this.errorReply(`Your username contains a phrase banned by this room.`);
 				return false;
 			}
@@ -629,10 +712,16 @@ class CommandContext {
 				return false;
 			}
 
+			let gameFilter = this.checkGameFilter();
+			if (gameFilter && !user.can('bypassall')) {
+				this.errorReply(gameFilter);
+				return false;
+			}
+
 			if (room) {
 				let normalized = message.trim();
 				if (room.id === 'lobby' && (normalized === user.lastMessage) &&
-					((Date.now() - user.lastMessageTime) < MESSAGE_COOLDOWN)) {
+						((Date.now() - user.lastMessageTime) < MESSAGE_COOLDOWN)) {
 					this.errorReply("You can't send the same message again so soon.");
 					return false;
 				}
@@ -814,12 +903,7 @@ Chat.CommandContext = CommandContext;
  */
 Chat.parse = function (message, room, user, connection) {
 	Chat.loadCommands();
-	let context = new CommandContext({
-		message,
-		room,
-		user,
-		connection,
-	});
+	let context = new CommandContext({message, room, user, connection});
 
 	return context.parse();
 };
@@ -834,8 +918,8 @@ Chat.uncacheTree = function (root) {
 			if (require.cache[uncache[i]]) {
 				newuncache.push.apply(newuncache,
 					require.cache[uncache[i]].children
-					.filter(cachedModule => !cachedModule.id.endsWith('.node'))
-					.map(cachedModule => cachedModule.id)
+						.filter(cachedModule => !cachedModule.id.endsWith('.node'))
+						.map(cachedModule => cachedModule.id)
 				);
 				delete require.cache[uncache[i]];
 			}
@@ -978,4 +1062,77 @@ Chat.toDurationString = function (number, options) {
 		}
 	}
 	return parts.slice(positiveIndex).reverse().map((value, index) => value ? value + " " + unitNames[index] + (value > 1 ? "s" : "") : "").reverse().slice(0, precision).join(" ").trim();
+};
+
+/**
+ * Takes a string and converts it to HTML by replacing standard chat formatting with the appropriate HTML tags.
+ *
+ * @param  {string} str
+ * @return {string}
+ */
+Chat.parseText = function (str) {
+	str = Chat.escapeHTML(str).replace(/&#x2f;/g, '/').replace(linkRegex, uri => `<a href=${uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1')}>${uri}</a>`);
+
+	// Primarily a test for a new way of parsing chat formatting. Will be moved to Chat once it's sufficiently finished and polished.
+	let output = [''];
+	let stack = [];
+
+	let parse = true;
+
+	let i = 0;
+	mainLoop: while (i < str.length) {
+		let token = str[i];
+
+		// Hardcoded parsing
+		if (parse && token === '`' && str.substr(i, 2) === '``') {
+			stack.push('``');
+			output.push('');
+			parse = false;
+			i += 2;
+			continue;
+		}
+
+		for (let f = 0; f < formattingResolvers.length; f++) {
+			let start = formattingResolvers[f].token;
+			let end = formattingResolvers[f].endToken || start;
+
+			if (stack.length && end.startsWith(token) && str.substr(i, end.length) === end && output[stack.length].replace(token, '').length) {
+				for (let j = stack.length - 1; j >= 0; j--) {
+					if (stack[j] === start) {
+						parse = true;
+
+						while (stack.length > j + 1) {
+							output[stack.length - 1] += stack.pop() + output.pop();
+						}
+
+						let str = output.pop();
+						let outstr = formattingResolvers[f].resolver(str.trim());
+						if (!outstr) outstr = `${start}${str}${end}`;
+						output[stack.length - 1] += outstr;
+						i += end.length;
+						stack.pop();
+						continue mainLoop;
+					}
+				}
+			}
+
+			if (parse && start.startsWith(token) && str.substr(i, start.length) === start) {
+				stack.push(start);
+				output.push('');
+				i += start.length;
+				continue mainLoop;
+			}
+		}
+
+		output[stack.length] += token;
+		i++;
+	}
+
+	while (stack.length) {
+		output[stack.length - 1] += stack.pop() + output.pop();
+	}
+
+	let result = output[0];
+
+	return result;
 };

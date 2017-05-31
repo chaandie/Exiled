@@ -6,12 +6,12 @@ exports.BattleItems = {
 		onTakeItem: false,
 		id: "playniumz",
 		name: "Playnium Z",
-		zMove: "Exiled From All Others",
+		zMove: "EXTREME SUPER MEGA ULTIMATE ALPHA GIGA SUPREME FANTASTIC EXTRA PREFIX COMBO BREAKER",
 		zMoveFrom: "Aqua Subscribe",
-		zMoveUser: ["Ludicolo"],
+		zMoveUser: ["Ludicolo-Mega"],
 		num: -1,
 		gen: -1,
-		desc: "If holder is a Ludicolo with Aqua Subscribe, it can use Exiled From All Others.",
+		desc: "If holder is a Ludicolo with Aqua Subscribe, it can use EXTREME SUPER MEGA ULTIMATE ALPHA GIGA SUPREME FANTASTIC EXTRA PREFIX COMBO BREAKER.",
 	},
 	"flarez": {
 		spritenum: 656,
@@ -65,14 +65,14 @@ exports.BattleItems = {
 		gen: -1,
 		desc: "Holder's Speed & Special Attack is 1.5x, but it can only select the first move it executes.",
 	},
-	"marveliumz": {
+	"playeriniumz": {
 		spritenum: 656,
 		onTakeItem: false,
-		id: "marveliumz",
-		name: "Marvelium Z",
-		zMove: "Hyper Viper Beam",
-		zMoveFrom: "Hail Storm",
-		zMoveUser: ["Rotom-Frost"],
+		id: "playeriniumz",
+		name: "Playerinium Z",
+		zMove: "Rush Of Volcano Thunder",
+		zMoveFrom: "Rush Of Dragon Bolt",
+		zMoveUser: ["Dragonite"],
 		num: -5,
 		gen: -1,
 		desc: "If holder is a Rotom-Frost with Hail Storm, it can use Hyper Viper Beam.",
@@ -102,7 +102,7 @@ exports.BattleItems = {
 			this.heal(pokemon.maxhp / 4);
 		},
 		num: -7,
-		gen: -2,
+		gen: -1,
 		desc: "At the end of every turn, holder restores 1/4 of its max HP.",
 	},
 	"bagofls": {
@@ -117,35 +117,35 @@ exports.BattleItems = {
 				return accuracy * 1.1;
 			}
 		},
-		num: -22,
-		gen: -4,
+		num: -8,
+		gen: -1,
 		desc: "The accuracy of attacks by the holder is 1.1x.",
 	},
-	"faustianbargain": {
-		id: "faustianbargain",
-		name: "Faustian Bargain",
+	"debugger": {
+		id: "debugger",
+		name: "Debugger",
 		spritenum: 476,
-		fling: {
-			basePower: 80,
-		},
-		onModifyDefPriority: 2,
-		onModifyDef: function (def, pokemon) {
-			if (pokemon.baseTemplate.nfe) {
-				return this.chainModify(1.5);
+		onDamage: function (damage, target, source, effect) {
+			if (target.hp === target.maxhp && damage >= target.hp && effect && effect.effectType === 'Move') {
+				return target.hp - 1;
 			}
 		},
-		onModifySpDPriority: 2,
-		onModifySpD: function (spd, pokemon) {
-			if (pokemon.baseTemplate.nfe) {
-				return this.chainModify(1.5);
+		onUpdate: function (pokemon) {
+			let activate = false;
+			let boosts = {};
+			for (let i in pokemon.boosts) {
+				if (pokemon.boosts[i] < 0) {
+					activate = true;
+					boosts[i] = 0;
+				}
+			}
+			if (activate) {
+				pokemon.setBoost(boosts);
+				this.add('-clearnegativeboost', pokemon, '[silent]');
+				this.heal(pokemon.maxhp / 4);
 			}
 		},
-		onResidualOrder: 26,
-		onResidualSubOrder: 2,
-		onResidual: function (pokemon) {
-			this.damage(pokemon.maxhp / 4);
-		},
-		num: -288,
+		num: -9,
 		gen: -1,
 	},
 	"armorvest": {
@@ -159,6 +159,10 @@ exports.BattleItems = {
 		onModifyDef: function (def) {
 			return this.chainModify(2);
 		},
+		onModifySpDPriority: 1,
+		onModifySpD: function (spd) {
+			return this.chainModify(2);
+		},
 		onDisableMove: function (pokemon) {
 			let moves = pokemon.moveset;
 			for (let i = 0; i < moves.length; i++) {
@@ -167,8 +171,156 @@ exports.BattleItems = {
 				}
 			}
 		},
-		num: -640,
-		gen: -6,
-		desc: "Holder's Sp. Def is 1.5x, but it can only select damaging moves.",
+		num: -10,
+		gen: -1,
+		desc: "Holder's Sp. Def and Defense are boosted by 2x, but it can only select damaging moves.",
+	},
+	"douglasiniumz": {
+		spritenum: 656,
+		onTakeItem: false,
+		id: "douglasiniumz",
+		name: "Douglasinium Z",
+		zMove: "Punchyru Massacre Z",
+		zMoveFrom: "Punchy Fury",
+		zMoveUser: ["Conkeldurr"],
+		onResidualOrder: 26,
+		onResidualSubOrder: 2,
+		onResidual: function (pokemon) {
+			pokemon.trySetStatus('brn');
+		},
+		num: -11,
+		gen: -1,
+		desc: "If holder is a Conkeldurr with Punchy Fury, it can use Punchyru Massacre Z, and burns holder every turn.",
+	},
+	"rainbowplate": {
+		id: "rainbowplate",
+		name: "Rainbow Plate",
+		spritenum: 572,
+		onBasePowerPriority: 6,
+		onBasePower: function (basePower, user, target, move) {
+			if (move && move.stab || move.type === '???') {
+				return this.chainModify([0x1333, 0x1000]);
+			}
+		},
+		onResidualOrder: 5,
+		onResidualSubOrder: 2,
+		onResidual: function (pokemon) {
+			this.heal(pokemon.maxhp / 8);
+		},
+		onTakeItem: false,
+		num: -12,
+		gen: -1,
+		desc: "7.8/10 too much code.",
+	},
+	"hydriumz": {
+		spritenum: 656,
+		onTakeItem: false,
+		id: "hydriumz",
+		name: "Hydrium-Z",
+		zMove: "Oceanic Song",
+		zMoveFrom: "Hydraulic Blast",
+		zMoveUser: ["Milotic"],
+		num: -12,
+		gen: -1,
+		desc: "If holder is a Milotic with Hydraulic Blast, it can use Oceanic Song.",
+	},
+	"legendiniumz": {
+		spritenum: 656,
+		onTakeItem: false,
+		id: "legendiniumz",
+		name: "Legendinium Z",
+		zMove: "Legend's Destruction",
+		zMoveFrom: "Lord's Wrath",
+		zMoveUser: ["Rayquaza-Mega"],
+		num: -13,
+		gen: -1,
+		desc: "If holder is a Rayquaza-Mega with Lord's Wrath, it can use Legend's Destruction.",
+	},
+	"arcaniumz": {
+		spritenum: 656,
+		onTakeItem: false,
+		id: "arcaniumz",
+		name: "Arcanium Z",
+		zMove: "Horrific Memes",
+		zMoveFrom: "Horrific Roasts",
+		zMoveUser: ["Arcanine"],
+		num: -14,
+		gen: -1,
+		desc: "If holder is an Arcanine with Horrific Roasts, it can use Horrific Memes.",
+	},
+	"kanekiniumz": {
+		spritenum: 656,
+		onTakeItem: false,
+		id: "kanekiniumz",
+		name: "Kanekinium Z",
+		zMove: "ULTRA MEGA SUPER FANTASTIC FLAMETHROWER OF THE GODS",
+		zMoveFrom: "Super Ultra Flamethrower Destroyer of Universes",
+		zMoveUser: ["Ninetales"],
+		num: -15,
+		gen: -1,
+		desc: "If holder is an Ninetales with Super Ultra Flamethrower Destroyer of Universes, it can use ULTRA MEGA SUPER FANTASTIC FLAMETHROWER OF THE GODS.",
+	},
+	"bulbasauriumz": {
+		spritenum: 656,
+		onTakeItem: false,
+		id: "bulbasauriumz",
+		name: "Bulbasaurium Z",
+		zMove: "One Bulbasaur Horde",
+		zMoveFrom: "Bulba Lord",
+		zMoveUser: ["Bulbasaur"],
+		num: -15,
+		gen: -1,
+		desc: "If holder is an Bulbasaur with Bulba Lord, it can use One Bulbasaur Horde.",
+	},
+	"ultimateberry": {
+		id: "ultimateberry",
+		name: "Ultimate Berry",
+		spritenum: 217,
+		isBerry: true,
+		naturalGift: {
+			basePower: 80,
+			type: "Dark",
+		},
+		onUpdate: function (pokemon) {
+			if (pokemon.hp <= pokemon.maxhp / 4 || (pokemon.hp <= pokemon.maxhp / 2 && pokemon.hasAbility('gluttony'))) {
+				pokemon.eatItem();
+			}
+		},
+		onEat: function (pokemon) {
+			let stats = [];
+			for (let stat in pokemon.boosts) {
+				if (stat !== 'accuracy' && stat !== 'evasion' && stat !== 'spa' && stat !== 'spe' && pokemon.boosts[stat] < 6) {
+					stats.push(stat);
+				}
+			}
+			if (stats.length) {
+				let randomStat = stats[this.random(stats.length)];
+				let boost = {};
+				boost[randomStat] = 1;
+				this.boost(boost);
+			}
+		},
+		num: -16,
+		gen: -1,
+		desc: "Randomly boosts a stat at 1/4 health; 1/2 if Gluttony.",
+	},
+	"healthorb": {
+		id: "healthorb",
+		name: "Health Orb",
+		spritenum: 249,
+		fling: {
+			basePower: 30,
+		},
+		onModifyDamage: function (damage, source, target, move) {
+			return this.chainModify([0x14CC, 0x1000]);
+		},
+		onAfterMoveSecondarySelf: function (source, target, move) {
+			if (source && source !== target && move && move.category !== 'Status' && !move.ohko) {
+				this.damage(source.maxhp / 32, source, source, this.getItem('healthorb'));
+			}
+		},
+		num: -17,
+		gen: -1,
+		desc: "Holder's attacks do 1.3x damage, and it loses 1/32 its max HP after the attack.",
 	},
 };

@@ -20,16 +20,17 @@ const colors = {
 };
 
 const shop = [
-	['XY-Base', 'Get three cards from the first pack released in the Pokemon XY set.', 10],
-	['XY-Flashfire', 'Get three cards from the Flashfire pack released in the Pokemon XY set.', 10],
-	['XY-Furious Fists', 'Get three cards from the Furious Fists pack released in the Pokemon XY set.', 10],
-	['XY-Phantom Forces', 'Get three cards from the Phantom Forces pack released in the Pokemon XY set.', 10],
-	['XY-Primal Clash', 'Get three cards from the Primal Clash pack released in the Pokemon XY set.', 10],
-	['XY-Roaring Skies', 'Get three cards from the Roaring Skies pack released in the Pokemon XY set.', 10],
-	['XY-Ancient Origins', 'Get three cards from the Ancient Origins pack released in the Pokemon XY set.', 10],
-	['XY-Promo', 'Get three cards from the Promo pack released in the Pokemon XY set.', 20],
+	['XY-Base', 'Get three cards from the first pack released in the Pokemon XY set.', 4],
+	['XY-Flashfire', 'Get three cards from the Flashfire pack released in the Pokemon XY set.', 4],
+	['XY-Furious Fists', 'Get three cards from the Furious Fists pack released in the Pokemon XY set.', 4],
+	['XY-Phantom Forces', 'Get three cards from the Phantom Forces pack released in the Pokemon XY set.', 4],
+	['XY-Primal Clash', 'Get three cards from the Primal Clash pack released in the Pokemon XY set.', 4],
+	['XY-Roaring Skies', 'Get three cards from the Roaring Skies pack released in the Pokemon XY set.', 4],
+	['XY-Ancient Origins', 'Get three cards from the Ancient Origins pack released in the Pokemon XY set.', 4],
+	['XY-Promo', 'Get three cards from the Promo pack released in the Pokemon XY set.', 10],
+	['Exiled', 'Get three cards from our custom made Exiled expansion.', 10],
 ];
-let packShop = ['XY-Base', 'XY-Flashfire', 'XY-Furious Fists', 'XY-Phantom Forces', 'XY-Primal Clash', 'XY-Roaring Skies', 'XY-Ancient Origins', 'XY-Promo', 'Double Crisis', 'Water', 'Fire', 'Fighting', 'Fairy', 'Dragon', 'Colorless', 'Psychic', 'Lightning', 'Darkness', 'Grass', 'OU-Pack', 'UU-Pack', 'Uber-Pack', 'PU-Pack', 'NU-Pack', 'RU-Pack', 'LC-Pack', 'BL-Pack', 'BL2-Pack', 'BL3-Pack', 'Gen1', 'Gen2', 'Gen3', 'Gen4', 'Gen5', 'Gen6', 'Metal', 'Trainer', 'Supporter', 'Item', 'Stadium', 'EX-Pack', 'Legendary', 'Full', 'Event'];
+let packShop = ['XY-Base', 'XY-Flashfire', 'XY-Furious Fists', 'XY-Phantom Forces', 'XY-Primal Clash', 'XY-Roaring Skies', 'XY-Ancient Origins', 'XY-Promo', 'Exiled', 'Double Crisis', 'Water', 'Fire', 'Fighting', 'Fairy', 'Dragon', 'Colorless', 'Psychic', 'Lightning', 'Darkness', 'Grass', 'OU-Pack', 'UU-Pack', 'Uber-Pack', 'PU-Pack', 'NU-Pack', 'RU-Pack', 'LC-Pack', 'BL-Pack', 'BL2-Pack', 'BL3-Pack', 'Gen1', 'Gen2', 'Gen3', 'Gen4', 'Gen5', 'Gen6', 'Metal', 'Trainer', 'Supporter', 'Item', 'Stadium', 'EX-Pack', 'Legendary', 'Full', 'Event'];
 const tourCardRarity = ['No Card', 'Common', 'Uncommon', 'Rare', 'Epic', 'Epic', 'Legendary', 'Legendary', 'Mythic'];
 const cardRarity = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic'];
 let cleanShop = [];
@@ -70,7 +71,7 @@ function cacheRarity() {
 
 Exiled.tourCard = function (tourSize, userid) {
 	if (tourSize > 32) tourSize = 32;
-	let tourRarity = tourCardRarity[Math.floor(tourSize / 2)];
+	let tourRarity = tourCardRarity[Math.floor(tourSize / 4)];
 	let cacheValue = rareCache[cleanCard.indexOf(toId(tourRarity))];
 	if (!cacheValue || !cacheValue.length) return false;
 	let card = cacheValue[Math.round(Math.random() * (cacheValue.length - 1))];
@@ -202,10 +203,10 @@ exports.commands = {
 		if (!target) return this.sendReply("/buypack - Buys a pack from the pack shop. Alias: /buypacks");
 		let self = this;
 		let packId = toId(target);
-		let amount = Db('money').get(user.name);
+		let amount = Db('money').get(user.userid, 0);
 		if (cleanShop.indexOf(packId) < 0) return self.sendReply("This is not a valid pack. Use /packshop to see all packs.");
 		let shopIndex = cleanShop.indexOf(toId(target));
-		if (packId !== 'xybase' && packId !== 'xyfuriousfists' && packId !== 'xyflashfire' && packId !== 'xyphantomforces' && packId !== 'xyroaringskies' && packId !== 'xyprimalclash' && packId !== 'xyancientorigins' && packId !== 'xygenerations' && packId !== 'xypromo') return self.sendReply("This pack is not currently in circulation.  Please use /packshop to see the current packs.");
+		if (packId !== 'xybase' && packId !== 'xyfuriousfists' && packId !== 'xyflashfire' && packId !== 'xyphantomforces' && packId !== 'xyroaringskies' && packId !== 'xyprimalclash' && packId !== 'xyancientorigins' && packId !== 'xygenerations' && packId !== 'xypromo' && packId !== 'exiled') return self.sendReply("This pack is not currently in circulation.  Please use /packshop to see the current packs.");
 		let cost = shop[shopIndex][2];
 		if (cost > amount) return self.sendReply("You need " + (cost - amount) + " more bucks to buy this pack.");
 		Economy.writeMoney(user.userid, Number(-cost));
@@ -563,8 +564,8 @@ exports.commands = {
 
 		// send messages
 		this.sendReply("Your trade has been taken submitted.");
-		if (Users.get(targetUser)) Users.get(targetUser).send("|pm|~Card Shop [Do not Reply]|" + targetUser + "|/raw <div class=\"broadcast-green\">" + Exiled.nameColor(user.name, true) + " has initiated a trade with you.  Click <button name=\"send\" value=\"/trades last\">here</button> or use <b>/trades</b> to view your pending trade requests.</div>");
-		user.send("|pm|~Card Shop [Do not Reply]|" + user.userid + "|/raw <div class=\"broadcast-green\">Your trade with " + Exiled.nameColor(targetUser, true) + " has been initiated.  Click <button name=\"send\" value=\"/trades last\">here</button> or use <b>/trades</b> to view your pending trade requests.</div>");
+		if (Users.get(targetUser)) Users.get(targetUser).send("|pm|~Exiled Server|" + targetUser + "|/raw <div class=\"broadcast-green\">" + Exiled.nameColor(user.name, true) + " has initiated a trade with you.  Click <button name=\"send\" value=\"/trades last\">here</button> or use <b>/trades</b> to view your pending trade requests.</div>");
+		user.send("|pm|~Exiled Server|" + user.userid + "|/raw <div class=\"broadcast-green\">Your trade with " + Exiled.nameColor(targetUser, true) + " has been initiated.  Click <button name=\"send\" value=\"/trades last\">here</button> or use <b>/trades</b> to view your pending trade requests.</div>");
 	},
 
 	trades: 'viewcardtrades',
@@ -927,4 +928,10 @@ exports.commands = {
 		user.popup("You have successfully taken " + card.name + " from " + targetUser + ".");
 		this.logModCommand(user.name + " took the card '" + card.name + "' from " + targetUser + ".");
 	},
+	resetcards: function (target, room, user) {
+		if (!this.can('forcewin')) return false;
+		Db('cards').set(toId(target), 0);
+		this.sendReply(target + " has had their cards reset.");
+	},
+	resetcardshelp: ["/resetcards [user] - Reset user's card collection."],
 };

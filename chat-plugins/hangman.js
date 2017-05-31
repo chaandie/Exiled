@@ -1,7 +1,7 @@
 /*
- * Hangman chat plugin
- * By bumbadadabum and Zarel. Art by crobat.
- */
+* Hangman chat plugin
+* By bumbadadabum and Zarel. Art by crobat.
+*/
 
 'use strict';
 
@@ -160,7 +160,7 @@ class Hangman extends Rooms.RoomGame {
 			}
 		}
 
-		output += '</td></tr></table></font></div>';
+		output += '</td></tr></table></div>';
 
 		return output;
 	}
@@ -203,15 +203,19 @@ exports.commands = {
 			if (!this.can('minigame', null, room)) return false;
 			if (room.hangmanDisabled) return this.errorReply("Hangman is disabled for this room.");
 			if (!this.canTalk()) return;
+			if (room.game) return this.errorReply("There is already a game of " + room.game.title + " in progress in this room.");
 
 			if (!params) return this.errorReply("No word entered.");
 			let word = params[0].replace(/[^A-Za-z '-]/g, '');
 			if (word.replace(/ /g, '').length < 1) return this.errorReply("Enter a valid word");
+			if (word.length > 30) return this.errorReply("Phrase must be less than 30 characters.");
+			if (word.split(' ').some(w => w.length > 20)) return this.errorReply("Each word in the phrase must be less than 20 characters.");
 			if (!/[a-zA-Z]/.test(word)) return this.errorReply("Word must contain at least one letter.");
 
 			let hint;
 			if (params.length > 1) {
 				hint = params.slice(1).join(',').trim();
+				if (hint.length > 150) return this.errorReply("Hint too long.");
 			}
 
 			room.game = new Hangman(room, user, word, hint);
@@ -228,7 +232,8 @@ exports.commands = {
 
 			room.game.guess(target, user);
 		},
-		guesshelp: ["/hangman guess [letter] - Makes a guess for the letter entered.",
+		guesshelp: [
+			"/hangman guess [letter] - Makes a guess for the letter entered.",
 			"/hangman guess [word] - Same as a letter, but guesses an entire word.",
 		],
 
@@ -282,7 +287,8 @@ exports.commands = {
 		},
 	},
 
-	hangmanhelp: ["/hangman allows users to play the popular game hangman in PS rooms.",
+	hangmanhelp: [
+		"/hangman allows users to play the popular game hangman in PS rooms.",
 		"Accepts the following commands:",
 		"/hangman create [word], [hint] - Makes a new hangman game. Requires: % @ * # & ~",
 		"/hangman guess [letter] - Makes a guess for the letter entered.",
@@ -299,7 +305,8 @@ exports.commands = {
 
 		room.game.guess(target, user);
 	},
-	guesshelp: ["/guess - Shortcut for /hangman guess.", "/hangman guess [letter] - Makes a guess for the letter entered.",
+	guesshelp: [
+		"/guess - Shortcut for /hangman guess.", "/hangman guess [letter] - Makes a guess for the letter entered.",
 		"/hangman guess [word] - Same as a letter, but guesses an entire word.",
 	],
 };

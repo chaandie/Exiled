@@ -19,7 +19,7 @@ exports.BattleStatuses = {
 		onBeforeMovePriority: 2,
 		onBeforeMove: function (pokemon) {
 			if (this.random(4) === 0) {
-				this.add('cant', pokemon.id, 'par');
+				this.add('cant', pokemon, 'par');
 				return false;
 			}
 		},
@@ -27,7 +27,7 @@ exports.BattleStatuses = {
 	slp: {
 		effectType: 'Status',
 		onStart: function (target) {
-			this.add('-status', target.id, 'slp');
+			this.add('-status', target, 'slp');
 			// 1-5 turns
 			this.effectData.time = this.random(2, 6);
 		},
@@ -38,7 +38,7 @@ exports.BattleStatuses = {
 				pokemon.cureStatus();
 				return;
 			}
-			this.add('cant', pokemon.id, 'slp');
+			this.add('cant', pokemon, 'slp');
 			if (move.sleepUsable) {
 				return;
 			}
@@ -171,10 +171,9 @@ exports.BattleStatuses = {
 			this.effectData.counter = 127;
 		},
 		onStallMove: function () {
-			// Gen 2 starts counting at x=255, x/256 and then halves x on every turn
 			let counter = Math.floor(this.effectData.counter) || 127;
-			this.debug("Success chance: " + Math.round(counter * 1000 / 256) / 10 + "% (" + counter + "/256)");
-			return (this.random(256) < counter);
+			this.debug("Success chance: " + Math.round(counter * 1000 / 255) / 10 + "% (" + counter + "/255)");
+			return (this.random(255) < counter);
 		},
 		onRestart: function () {
 			this.effectData.counter /= 2;

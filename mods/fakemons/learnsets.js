@@ -272,4 +272,21 @@ exports.BattleLearnsets = {
 			nastyplot: ["7M"],
 		},
 	},
+	hydring: {
+		learnset: {
+			magnetbomb: ["7L1"],
+			ironhead: ["7L23"],
+			thunderbolt: ["7M"],
+			grassknot: ["7M"],
+			surf: ["7M"],
+			waterfall: ["7M"],
+			protect: ["7M"],
+			scald: ["7M"],
+			return: ["7M"],
+			frustration: ["7M"],
+			raindance: ["7M"],
+			icebeam: ["7M"],
+			blizzard: ["7M"],
+		},
+	},
 };

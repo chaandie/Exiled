@@ -449,26 +449,24 @@ exports.BattleScripts = {
 				},
 				nature: 'Mild',
 			},
-			'Guilds Wigglytuff': {
+			'Guild\'s Wigglytuff': {
 				species: 'Wigglytuff',
 				ability: 'Cute Charm',
 				item: '',
-				level: 15,
 				gender: 'M',
 				moves: ['Double Slap', 'Sing', 'Defense Curl', 'Rollout'],
 				weather: null,
 				evs: {
-					hp: 248,
+					hp: 8,
 					atk: 252,
-					def: 8,
+					def: 248,
 				},
 				nature: 'Adamant',
 			},
-			'Guilds Chatot': {
+			'Guild\'s Chatot': {
 				species: 'Chatot',
 				ability: 'Tangled Feet',
 				item: '',
-				level: 15,
 				gender: 'M',
 				moves: ['Hyper Voice', 'Fury Attack', 'Peck', 'Mirror Move'],
 				weather: null,
@@ -479,7 +477,7 @@ exports.BattleScripts = {
 				},
 				nature: 'Modest',
 			},
-			'Guilds Bidoof': {
+			'Guild\'s Bidoof': {
 				species: 'Bidoof',
 				ability: 'Simple',
 				item: '',
@@ -493,13 +491,12 @@ exports.BattleScripts = {
 				},
 				nature: 'Adamant',
 			},
-			'Guilds Sunflora': {
+			'Guild\'s Sunflora': {
 				species: 'Sunflora',
 				ability: 'Chlorophyll',
 				item: '',
-				level: 20,
 				gender: 'F',
-				moves: ['Leaf Storm', 'Sleep Powder', 'Bullet Seed', 'Growth'],
+				moves: ['Mega Drain', 'Sleep Powder', 'Bullet Seed', 'Hidden Power Fire'],
 				weather: 'Sun',
 				evs: {
 					hp: 248,
@@ -508,13 +505,12 @@ exports.BattleScripts = {
 				},
 				nature: 'Modest',
 			},
-			'Guilds Chimecho': {
+			'Guild\'s Chimecho': {
 				species: 'Chimecho',
 				ability: 'Levitate',
 				item: '',
-				level: 15,
 				gender: 'F',
-				moves: ['Psybeam', 'Wish', 'Ominous Wind', 'Future Sight'],
+				moves: ['Psybeam', 'Heal Bell', 'Yawn', 'Signal Beam'],
 				weather: null,
 				evs: {
 					hp: 248,
@@ -523,27 +519,26 @@ exports.BattleScripts = {
 				},
 				nature: 'Modest',
 			},
-			'Guilds Diglett': {
+			'Guild\'s Diglett': {
 				species: 'Diglett',
 				ability: 'Sand Force',
 				item: '',
 				gender: 'M',
-				moves: ['Magnitude', 'Scratch', 'Sucker Punch', 'Screech'],
+				moves: ['Earthquake', 'Slash', 'Sucker Punch', 'Screech'],
 				weather: null,
 				evs: {
-					hp: 248,
+					spe: 252,
 					atk: 252,
-					spd: 8,
+					spd: 4,
 				},
 				nature: 'Adamant',
 			},
-			'Guilds Dugtrio': {
+			'Guild\'s Dugtrio': {
 				species: 'Dugtrio',
 				ability: 'Sand Force',
 				item: '',
-				level: 15,
 				gender: 'M',
-				moves: ['Earthquake', 'Slash', 'Sucker Punch', 'Shadow Claw'],
+				moves: ['Magnitude', 'Scratch', 'Sucker Punch', 'Shadow Claw'],
 				weather: null,
 				evs: {
 					hp: 248,
@@ -552,12 +547,40 @@ exports.BattleScripts = {
 				},
 				nature: 'Adamant',
 			},
-			'Guilds Croagunk': {
+			'Guild\'s Croagunk': {
 				species: 'Croagunk',
 				ability: 'Poison Touch',
 				item: '',
 				gender: 'M',
-				moves: ['Fake Out', 'Sludge Bomb', 'Drain Punch', 'Poison Jab'],
+				moves: ['Fake Out', 'Venoshock', 'Brick Break', 'Dual Chop'],
+				weather: null,
+				evs: {
+					spa: 4,
+					atk: 252,
+					spe: 252,
+				},
+				nature: 'Adamant',
+			},
+			'Guild\'s Loudred': {
+				species: 'Loudred',
+				ability: 'Scrappy',
+				item: '',
+				gender: 'M',
+				moves: ['Uproar', 'Pound', 'Shadow Ball', 'Screech'],
+				weather: null,
+				evs: {
+					hp: 4,
+					atk: 252,
+					spa: 252,
+				},
+				nature: 'Adamant',
+			},
+			'Guild\'s Corphish': {
+				species: 'Corphish',
+				ability: 'Adaptability',
+				item: '',
+				gender: 'M',
+				moves: ['Bubblebeam', 'Vice Grip', 'Dragon Dance', 'Razor Shell'],
 				weather: null,
 				evs: {
 					hp: 248,
@@ -566,27 +589,40 @@ exports.BattleScripts = {
 				},
 				nature: 'Adamant',
 			},
-			'Guilds Loudred': {
-				species: 'Loudred',
-				ability: 'Scrappy',
+			'Skull\'s Skuntank': {
+				species: 'Skuntank',
+				ability: 'Aftermath',
 				item: '',
-				level: 15,
 				gender: 'M',
-				moves: ['Uproar', 'Pound', 'Shadow Ball', 'Screech'],
+				moves: ['Night Slash', 'Flamethrower', 'Smog', 'Slash'],
 				weather: null,
 				evs: {
-					hp: 248,
+					hp: 8,
 					atk: 252,
-					spa: 252,
+					spa: 248,
 				},
 				nature: 'Adamant',
 			},
-			'Guilds Corphish': {
-				species: 'Corphish',
-				ability: 'Adaptability',
+			'Skull\'s Koffing': {
+				species: 'Koffing',
+				ability: 'Levitate',
 				item: '',
 				gender: 'M',
-				moves: ['Bubblebeam', 'Vice Grip', 'Dragon Dance', 'Razor Shell'],
+				moves: ['Toxic', 'Venoshock', 'Will-O-Wisp', 'Flamethrower'],
+				weather: null,
+				evs: {
+					hp: 248,
+					spa: 252,
+					def: 8,
+				},
+				nature: 'Modest',
+			},
+			'Skull\'s Zubat': {
+				species: 'Zubat',
+				ability: 'Infiltrator',
+				item: '',
+				gender: 'M',
+				moves: ['Wing Attack', 'Roost', 'Leech Life', 'Poison Fang'],
 				weather: null,
 				evs: {
 					hp: 248,

@@ -3,7 +3,6 @@
 exports.BattleScripts = {
 	randomSeasonalMeleeTeam: function (side) {
 		let team = [];
-		let letiant = (this.random(2) === 1);
 		let sets = {
 			'Blissey': {
 				species: 'Blissey',
@@ -1716,6 +1715,28 @@ exports.BattleScripts = {
 				moves: ['meteormash', 'zenheadbutt', 'thousandarrows'],
 				baseSignatureMove: "nowimfire",
 				signatureMove: "Now I'm Fire",
+				evs: {
+					atk: 252,
+					hp: 252,
+					def: 4,
+				},
+				ivs: {
+					hp: 31,
+					atk: 31,
+					def: 31,
+					spa: 0,
+					spd: 31,
+					spe: 31,
+				},
+				nature: "Adamant",
+			},
+			"Agumon": {
+				species: "Charmander",
+				ability: "Torch",
+				item: "Eviolite",
+				moves: ['ignite', 'tailswipe', 'fieryoutburst'],
+				baseSignatureMove: "fastclaw",
+				signatureMove: "fastclaw",
 				evs: {
 					atk: 252,
 					hp: 252,

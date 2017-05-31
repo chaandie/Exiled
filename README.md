@@ -15,15 +15,15 @@ This server requires the Node Js Version 6.6.0 or higher<br>
 ``node app`` or ``node app.js`` you even might specify the port in which to run the server on eg:- ``node app.js 8080`` if you do not mention the port, the mentioned port from **Config.port** will be used to run the server
 ### Developers:
 * **Insist** - Main developer of Exiled files, Sysop.
-* **Volco** - Fixes errors, implements features, Sysop.
 * **HoeenCoder** - Sysop, Bug fixes, Mechanic assistance.
 * **Mewth** - Developments, Sysop.
-* **Eelek** - Developments, Sysop.
+* **VXN** - Developments, Sysop.
 * **Back At My Day** - Developments.
 * **Mystifi** - Assistance, Developments.
 * **AlfaStorm** & Ashley The Pikachu - Minor developments.
 * **Zarel** - The main workspace we used to begin Exiled off of.
 ### Retired Developers
 * **Sukesha** - Former co-owner, HTML developments, and CSS creator.
+* **Volco** - Former Sysop + Former Admin + Former Owner.
 * **Alpha Hawk** - Former Developer.
 ### Thanks for reading!  Hope you enjoy these codes, that are possible thanks to the above listed.

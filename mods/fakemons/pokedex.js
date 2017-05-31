@@ -2,7 +2,6 @@
  *   Fakemons    *
  * * * * * * * * */
 
-
 'use strict';
 
 exports.BattlePokedex = {
@@ -109,9 +108,10 @@ exports.BattlePokedex = {
 			H: "Regenerator",
 		},
 		heightm: "103",
-		prevo: "Octillery",
+		prevo: "octillery",
 		weightkg: "532",
 		color: "Blue",
+		evoLevel: 53,
 		eggGroups: ["Water 3"],
 	},
 	spectreon: {
@@ -130,10 +130,32 @@ exports.BattlePokedex = {
 			0: "Vengeful",
 			H: "Hatred",
 		},
+		evoLevel: 22,
 		heightm: 2,
 		weightkg: 0.5,
-		prevo: "Eevee",
+		prevo: "eevee",
 		color: "Purple",
 		eggGroups: ["Field, Amorphous"],
+	},
+	hydring: {
+		num: 9007,
+		species: "Hydring",
+		types: ["Steel", "Water"],
+		baseStats: {
+			hp: 150,
+			atk: 59,
+			def: 101,
+			spa: 70,
+			spd: 95,
+			spe: 50,
+		},
+		abilities: {
+			0: "Water Bubble",
+			1: "Swift Swim",
+			H: "Jewel Crack",
+		},
+		color: "Gray",
+		heightm: 6.8,
+		weightkg: 67.2,
 	},
 };
