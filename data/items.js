@@ -2341,6 +2341,7 @@ exports.BattleItems = {
 		num: 495,
 		gen: 2,
 		desc: "A Poke Ball for catching very heavy Pokemon.",
+	},
 	"heliolite": {
 		id: "heliolite",
 		name: "Heliolite",
