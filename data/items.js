@@ -2341,6 +2341,19 @@ exports.BattleItems = {
 		num: 495,
 		gen: 2,
 		desc: "A Poke Ball for catching very heavy Pokemon.",
+	"heliolite": {
+		id: "heliolite",
+		name: "Heliolite",
+		spritenum: -765,
+		megaStone: "Heliolisk-Mega",
+		megaEvolves: "Heliolisk",
+		onTakeItem: function (item, source) {
+			if (item.megaEvolves === source.baseTemplate.baseSpecies) return false;
+			return true;
+		},
+		num: -346,
+		gen: 0,
+		desc: "If holder is a Heliolisk, this item allows it to Mega Evolve in battle.",
 	},
 	"helixfossil": {
 		id: "helixfossil",
